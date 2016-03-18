@@ -8,8 +8,10 @@ import React, {
   StyleSheet,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   View
 } from 'react-native';
+
 var Swiper = require('react-native-swiper')
 
 class ChampionDetail extends Component {
@@ -20,16 +22,15 @@ class ChampionDetail extends Component {
     };
     this.champion_key = ''
   }
-   componentDidMount() {
+
+  componentDidMount() {
      this.champion_key= this.props.champion.key;
      {this.props.champion.skins.map(function(item){
        console.log(item);
      })}
-  //   console.log('aaaaaa', this.props)
-   }
+  }
 
-  render () {
-    console.log('aaaa', this);
+  renderScene() {
     var champion_name = this.props.champion.name;
 
     // Used to remove the broken dot
@@ -38,32 +39,9 @@ class ChampionDetail extends Component {
       )
     }
     return (
-      // <Swiper
-      //   showsButtons={false}
-      //   loop={false}>
-      //   <View >
-      //     <Image
-      //       source={{uri: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/Aatrox_0.jpg'}}
-      //       style={styles.thumbnail}
-      //     />
-      //   </View>
-      //   <View >
-      //     <Image
-      //       source={{uri: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/Aatrox_1.jpg'}}
-      //       style={styles.thumbnail}
-      //     />
-      //   </View>
-      //   <View >
-      //     <Image
-      //       source={{uri: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/Aatrox_2.jpg'}}
-      //       style={styles.thumbnail}
-      //     />
-      //   </View>
-      // </Swiper>
       <Swiper
         loop={false}
-        renderPagination={renderPagination}
-        >
+        renderPagination={renderPagination}>
         {this.props.champion.skins.map(function(skin){
           return (
               <View
@@ -75,15 +53,25 @@ class ChampionDetail extends Component {
                 />
                 <Text style={styles.text}>{skin.name}</Text>
               </View>
-            // <View style={item.css}>
-            //   <Text style={styles.text}>{item.title}</Text>
-            // </View>
           );
         })}
       </Swiper>
     );
   }
+
+  render () {
+    return (
+      <Navigator
+        renderScene={this.renderScene.bind(this)}
+        navigator={this.props.navigator}
+        navigationBar={
+          <Navigator.NavigationBar style={{backgroundColor: 'transparent', alignItems: 'center'}}
+              routeMapper={NavigationBarRouteMapper} />}
+      />
+    );
+  }
 }
+
 const styles = StyleSheet.create({
   loading: {
     width: 308,
@@ -100,4 +88,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 })
+
+var NavigationBarRouteMapper = {
+  LeftButton(route, navigator, index, navState) {
+    return (
+      <TouchableOpacity style={{flex: 1, justifyContent: 'center'}}
+        onPress={() => navigator.parentNavigator.pop()}>
+        <Text style={{color: 'white', margin: 10,}}>
+          Back
+        </Text>
+      </TouchableOpacity>
+    );
+  },
+  RightButton(route, navigator, index, navState) {
+    return null;
+  },
+  Title(route, navigator, index, navState) {
+    return null;
+  }
+};
+
 module.exports = ChampionDetail;

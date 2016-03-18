@@ -9,13 +9,15 @@ import React, {
   StyleSheet,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   View
 } from 'react-native';
-//const REQUEST_URL = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=all&api_key=882e5cb8-d65f-4cfa-afdf-456c352da004';
-const REQUEST_URL = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=skins&api_key=882e5cb8-d65f-4cfa-afdf-456c352da004';
 import ChampionDetail from './ChampionDetail'
-class ChampionList extends Component {
 
+const ApiKey = require('./.ApiKey.json')
+const REQUEST_URL = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=all&api_key='+ApiKey["riot"];
+
+class ChampionList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -26,31 +28,25 @@ class ChampionList extends Component {
     };
     this.static_data = null;
   }
+
   componentDidMount() {
     this.fetchData();
   }
+
   fetchData() {
     fetch(REQUEST_URL)
       .then((response) => response.json())
       .then((responseData) => {
         var keys = Object.keys(responseData.data);
-        //var values = keys.map(function(v) { return responseData.keys[v]; });
         let champion_list = []
         for (var key of keys) {
           champion_list.push(responseData.data[key])
         }
-        // var keys = Object.keys(responseData.keys);
-        // var values = keys.map(function(v) { return responseData.keys[v]; });
-        // let champion_list = []
-        // for (var key of keys) {
-        //   champion_list.push(responseData.data[responseData.keys[key]])
-        // }
         champion_list.sort(function(a, b) {
           if(a.name < b.name) return -1;
           if(a.name > b.name) return 1;
           return 0
         });
-      //  console.log(champion_list);
         this.setState({
           dataSource: this.state.dataSource.cloneWithRows(champion_list),
           loaded: true,
@@ -60,22 +56,16 @@ class ChampionList extends Component {
       })
       .done();
   }
+
   _handleResponse(champion) {
-    //console.log('gg',champion)
     this.props.navigator.push({
         name: 'ChampionDetail',
         component: ChampionDetail,
         passProps: {champion: champion}
     });
-  //   return (
-  //   <Navigator
-  //     initialRoute={{name: 'List Scene', index: 0}}
-  //     renderScene={this._renderScene.bind(this)}
-  //    />
-  //  );
   }
+
   renderChampions(champion) {
-    //console.log('champion', champion)
     return (
       <TouchableHighlight onPress={this._handleResponse.bind(this, champion)}
           underlayColor='#dddddd'>
@@ -91,6 +81,7 @@ class ChampionList extends Component {
       </TouchableHighlight>
     );
   }
+
   renderLoadingView() {
     return (
       <View style={styles.container}>
@@ -100,10 +91,8 @@ class ChampionList extends Component {
       </View>
     );
   }
-  render() {
-    if (!this.state.loaded) {
-      return this.renderLoadingView();
-    }
+
+  renderScene() {
     return (
       <ListView
         dataSource={this.state.dataSource}
@@ -112,7 +101,20 @@ class ChampionList extends Component {
       />
     );
   }
+
+  render() {
+    if (!this.state.loaded) {
+      return this.renderLoadingView();
+    }
+    return (
+      <Navigator
+        initialRoute={{name: 'Champion List', index: 0}}
+        renderScene={this.renderScene.bind(this)}
+        navigator={this.props.navigator} />
+    )
+  }
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -123,16 +125,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginTop: 50,
   },
   thumbnail: {
     width: 120,
@@ -149,4 +141,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   }
 });
+
 module.exports = ChampionList;
