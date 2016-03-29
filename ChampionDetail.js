@@ -1,43 +1,24 @@
 'use strict';
 import React, {
-  AppRegistry,
   Component,
   Image,
-  ListView,
-  Navigator,
   StyleSheet,
   Text,
-  TouchableHighlight,
-  TouchableOpacity,
   View
 } from 'react-native';
 
 var Swiper = require('react-native-swiper')
 
-class ChampionDetail extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      skins: []
-    };
-    this.champion_key = ''
-  }
-
-  componentDidMount() {
-     this.champion_key= this.props.champion.key;
-     {this.props.champion.skins.map(function(item){
-       console.log(item);
-     })}
-  }
-
-  renderScene() {
-    var champion_name = this.props.champion.name;
+export default class ChampionDetail extends React.Component {
+  render () {
+    var champion_key = this.props.champion.key;
 
     // Used to remove the broken dot
     var renderPagination = function () {
       return (<View />
       )
     }
+
     return (
       <Swiper
         loop={false}
@@ -48,8 +29,8 @@ class ChampionDetail extends Component {
                 key={skin.id}
                 style={styles.container}>
                 <Image
-                  source={{uri: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/'+champion_name+'_'+skin.num+'.jpg'}}
-                  style={styles.loading}
+                  source={{uri: 'http://ddragon.leagueoflegends.com/cdn/img/champion/loading/'+champion_key+'_'+skin.num+'.jpg'}}
+                  style={styles.vertical}
                 />
                 <Text style={styles.text}>{skin.name}</Text>
               </View>
@@ -58,22 +39,10 @@ class ChampionDetail extends Component {
       </Swiper>
     );
   }
-
-  render () {
-    return (
-      <Navigator
-        renderScene={this.renderScene.bind(this)}
-        navigator={this.props.navigator}
-        navigationBar={
-          <Navigator.NavigationBar style={{backgroundColor: 'transparent', alignItems: 'center'}}
-              routeMapper={NavigationBarRouteMapper} />}
-      />
-    );
-  }
 }
 
 const styles = StyleSheet.create({
-  loading: {
+  vertical: {
     width: 308,
     height: 540,
   },
@@ -89,23 +58,5 @@ const styles = StyleSheet.create({
   },
 })
 
-var NavigationBarRouteMapper = {
-  LeftButton(route, navigator, index, navState) {
-    return (
-      <TouchableOpacity style={{flex: 1, justifyContent: 'center'}}
-        onPress={() => navigator.parentNavigator.pop()}>
-        <Text style={{color: 'white', margin: 10,}}>
-          Back
-        </Text>
-      </TouchableOpacity>
-    );
-  },
-  RightButton(route, navigator, index, navState) {
-    return null;
-  },
-  Title(route, navigator, index, navState) {
-    return null;
-  }
-};
 
 module.exports = ChampionDetail;

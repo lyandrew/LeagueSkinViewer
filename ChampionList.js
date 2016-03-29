@@ -1,23 +1,22 @@
 'use strict';
 
 import React, {
-  AppRegistry,
   Component,
   Image,
   ListView,
-  Navigator,
+  ProgressBarAndroid,
   StyleSheet,
   Text,
   TouchableHighlight,
   TouchableOpacity,
   View
 } from 'react-native';
-import ChampionDetail from './ChampionDetail'
 
 const ApiKey = require('./.ApiKey.json')
 const REQUEST_URL = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/champion?champData=all&api_key='+ApiKey["riot"];
+const VERSION_NUM_URL = 'https://global.api.pvp.net/api/lol/static-data/na/v1.2/versions?api_key='+ApiKey["riot"]
 
-class ChampionList extends Component {
+export default class ChampionList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -25,8 +24,9 @@ class ChampionList extends Component {
         rowHasChanged: (row1, row2) => row1 !== row2,
       }),
       loaded: false,
+      version_num: '6.5.1'
     };
-    this.static_data = null;
+    fetch(VERSION_NUM_URL).then((response) => response.json()).then((responseData) => { this.setState({version_num:responseData[0]}) }).done();
   }
 
   componentDidMount() {
@@ -51,27 +51,18 @@ class ChampionList extends Component {
           dataSource: this.state.dataSource.cloneWithRows(champion_list),
           loaded: true,
         })
-        this.static_data = responseData;
 
       })
       .done();
   }
 
-  _handleResponse(champion) {
-    this.props.navigator.push({
-        name: 'ChampionDetail',
-        component: ChampionDetail,
-        passProps: {champion: champion}
-    });
-  }
-
   renderChampions(champion) {
     return (
-      <TouchableHighlight onPress={this._handleResponse.bind(this, champion)}
+      <TouchableHighlight onPress={() => this.props.onSelection(champion)}
           underlayColor='#dddddd'>
         <View style={styles.container}>
           <Image
-            source={{uri: 'http://ddragon.leagueoflegends.com/cdn/6.5.1/img/champion/'+champion.key+'.png'}}
+            source={{uri: 'http://ddragon.leagueoflegends.com/cdn/'+this.state.version_num+'/img/champion/'+champion.key+'.png'}}
             style={styles.thumbnail} />
           <View style={styles.rightContainer}>
             <Text style={styles.name}>{champion.name}</Text>
@@ -84,10 +75,8 @@ class ChampionList extends Component {
 
   renderLoadingView() {
     return (
-      <View style={styles.container}>
-        <Text>
-          Loading data...
-        </Text>
+      <View style={styles.loading}>
+        <ProgressBarAndroid styleAttr="Large" color="red" />
       </View>
     );
   }
@@ -106,12 +95,7 @@ class ChampionList extends Component {
     if (!this.state.loaded) {
       return this.renderLoadingView();
     }
-    return (
-      <Navigator
-        initialRoute={{name: 'Champion List', index: 0}}
-        renderScene={this.renderScene.bind(this)}
-        navigator={this.props.navigator} />
-    )
+    return this.renderScene();
   }
 }
 
@@ -119,7 +103,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#000000',
+    justifyContent: 'center',
+  },
+  loading: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#000000',
+    justifyContent: 'center',
   },
   rightContainer: {
     flex: 1,
@@ -135,11 +126,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 15,
     fontFamily: 'Verdana',
+    color: 'white',
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 10,
     textAlign: 'center',
+    color: 'gray'
   }
 });
-
-module.exports = ChampionList;
