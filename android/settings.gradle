@@ -1,3 +1,3 @@
-rootProject.name = 'League'
+rootProject.name = 'com.skins.league'
 
 include ':app'

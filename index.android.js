@@ -92,4 +92,4 @@ class League extends Component {
   }
 }
 
-AppRegistry.registerComponent('League', () => League);
+AppRegistry.registerComponent('com.skins.league', () => League);
